@@ -10,7 +10,7 @@ module Rinline
         end
 
         def to_source(path)
-          lines = File.read(path).split("\n")
+          lines = File.binread(path).split("\n")
           first_lineno = self.first_lineno - 1
           last_lineno = self.last_lineno - 1
           first_column = self.first_column

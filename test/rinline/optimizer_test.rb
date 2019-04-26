@@ -28,4 +28,21 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_nil optimized
   end
+
+  def test_optimize_with_multibytes
+    klass = Class.new do
+      def hello
+        "こんにちは、" + name
+      end
+
+      def name
+        "ぽっけ"
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :hello)
+    assert_equal 'def hello
+        "こんにちは、" + ("ぽっけ")
+      end', optimized
+  end
 end

@@ -83,7 +83,7 @@ module Rinline
         end
       end
 
-      ret.join("\n")
+      ret.join("\n").force_encoding(Encoding::UTF_8) # TODO: Support other encodings
     end
   end
 end
