@@ -22,7 +22,9 @@ module Rinline
 
       ast.traverse do |node|
         if node.type == :VCALL
-          target_method = klass.instance_method(node.children[0])
+          target_method_name = node.children[0]
+          next if method_name == target_method_name
+          target_method = klass.instance_method(target_method_name)
           target_iseq = target_method.to_iseq
           next unless target_iseq.short?
 
@@ -40,6 +42,8 @@ module Rinline
           return replaced
         end
       end
+
+      nil
     end
 
     attr_reader :klass, :method_name, :method
@@ -62,7 +66,7 @@ module Rinline
 
       replacements.each do |replacement|
         from = replacement[:from]
-        to = replacement[:to]
+        to = "(#{replacement[:to]})"
 
         rfl, rfc, rll, rlc = from.first_lineno, from.first_column, from.last_lineno, from.last_column - 1
         rfc -= fc if rfl == fl

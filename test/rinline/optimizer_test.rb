@@ -14,7 +14,18 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
-        "dog" + "cat"
+        ("dog") + "cat"
       end', optimized
+  end
+
+  def test_optimize_with_recursion
+    klass = Class.new do
+      def foo
+        foo + "cat"
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_nil optimized
   end
 end
