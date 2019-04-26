@@ -6,7 +6,7 @@ module Rinline
 
     # @param klass [Class]
     # @param method_name [Symbol] an instance method name
-    # @return [String] optimized code
+    # @return [String,nil] optimized code if optimized
     def self.optimize(klass, method_name)
       self.new(klass, method_name).optimize
     end
@@ -36,9 +36,8 @@ module Rinline
 
           replaced = replace(method, replacement)
 
-          klass.class_eval "undef :#{method_name}; #{replaced}"
-
-          break
+          # TODO: continue
+          return replaced
         end
       end
     end
@@ -65,7 +64,7 @@ module Rinline
         from = replacement[:from]
         to = replacement[:to]
 
-        rfl, rfc, rll, rlc = from.first_lineno, from.first_column, from.last_lineno, from.last_column
+        rfl, rfc, rll, rlc = from.first_lineno, from.first_column, from.last_lineno, from.last_column - 1
         rfc -= fc if rfl == fl
         rlc -= fc if fl == ll && rfl == fl
         rfl -= fl

@@ -14,7 +14,7 @@ module Rinline
           first_lineno = self.first_lineno - 1
           last_lineno = self.last_lineno - 1
           first_column = self.first_column
-          last_column = self.last_column
+          last_column = self.last_column - 1
 
           if first_lineno == last_lineno
             lines[first_lineno][first_column..last_column]

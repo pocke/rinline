@@ -9,6 +9,7 @@ module Rinline
   extend self
 
   def optimize_instance_method(klass, method_name)
-    Optimizer.optimize(klass, method_name)
+    optimized = Optimizer.optimize(klass, method_name)
+    klass.class_eval "undef :#{method_name}; #{optimized}" if optimized
   end
 end
