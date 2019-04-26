@@ -45,4 +45,37 @@ class OptimizerTest < Minitest::Test
         "こんにちは、" + ("ぽっけ")
       end', optimized
   end
+
+  def test_optimize_many_times
+    klass = Class.new do
+      def foo
+        bar + baz +
+          f + g
+      end
+
+      def bar
+        "x"
+      end
+
+      def baz
+        "y"
+      end
+
+      def f
+        "foo
+        bar"
+      end
+
+      def g
+        "xxx"
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_equal 'def foo
+        ("x") + ("y") +
+          ("foo
+        bar") + ("xxx")
+      end', optimized
+  end
 end

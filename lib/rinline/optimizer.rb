@@ -19,6 +19,7 @@ module Rinline
 
     def optimize
       ast = method.to_ast
+      replacements = []
 
       ast.traverse do |node|
         if node.type == :VCALL
@@ -31,19 +32,15 @@ module Rinline
           target_path = target_iseq.absolute_path
           target_ast = RubyVM::AbstractSyntaxTree.of(target_method)
 
-          replacement = {
+          replacements << {
             from: node,
             to: method_body_ast(target_ast).to_source(target_path),
           }
-
-          replaced = replace(method, replacement)
-
-          # TODO: continue
-          return replaced
         end
       end
 
-      nil
+      return if replacements.empty?
+      return replace(method, replacements)
     end
 
     attr_reader :klass, :method_name, :method
@@ -53,37 +50,26 @@ module Rinline
       method_ast.children[2]
     end
 
-    # TODO: Support multiple replacements
+    # TODO: replacement defined in another file
     #
     # @param original_method [Method]
     # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: String}>]
-    private def replace(original_method, *replacements)
+    private def replace(original_method, replacements)
       original_ast = original_method.to_ast
       original_path = original_method.to_iseq.absolute_path
-      ret = original_ast.to_source(original_path).split("\n")
-
-      fl, fc, ll = original_ast.first_lineno, original_ast.first_column, original_ast.last_lineno
+      ret = original_ast.to_source(original_path)
+      offset = -original_ast.first_index(original_path)
 
       replacements.each do |replacement|
         from = replacement[:from]
         to = "(#{replacement[:to]})"
 
-        rfl, rfc, rll, rlc = from.first_lineno, from.first_column, from.last_lineno, from.last_column - 1
-        rfc -= fc if rfl == fl
-        rlc -= fc if fl == ll && rfl == fl
-        rfl -= fl
-        rll -= fl
 
-        if rfl == rll
-          ret[rfl][rfc..rlc] = to
-        else
-          ret[rfl][rfc..-1] = to
-          ret[rll][0..rlc] = ""
-          ret[(rfl+1)..(rll-1)] = []
-        end
+        ret[(from.first_index(original_path) + offset)..(from.last_index(original_path) + offset)] = to
+        offset += to.size - from.to_source(original_path).size
       end
 
-      ret.join("\n").force_encoding(Encoding::UTF_8) # TODO: Support other encodings
+      ret.force_encoding(Encoding::UTF_8) # TODO: Support other encodings
     end
   end
 end

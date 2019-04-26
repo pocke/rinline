@@ -1,5 +1,6 @@
 module Rinline
   module Ext
+    # TODO: Reduce File.binread call
     module AstExt
       refine RubyVM::AbstractSyntaxTree::Node do
         def traverse(&block)
@@ -9,23 +10,27 @@ module Rinline
           end
         end
 
-        def to_source(path)
-          lines = File.binread(path).split("\n")
-          first_lineno = self.first_lineno - 1
-          last_lineno = self.last_lineno - 1
-          first_column = self.first_column
-          last_column = self.last_column - 1
+        def first_index(path)
+          return first_column if first_lineno == 1
 
-          if first_lineno == last_lineno
-            lines[first_lineno][first_column..last_column]
-          else
-            ret = [lines[first_lineno][first_column..-1]]
-            lines[(first_lineno+1)..(last_lineno-1)].each do |line|
-              ret << line
-            end
-            ret << lines[last_lineno][0..last_column]
-            ret.join("\n")
-          end
+          lines = File.binread(path).split("\n")
+          lines[0..(first_lineno - 2)].sum(&:size) +
+            first_lineno - 1 + # For \n
+            first_column
+        end
+
+        def last_index(path)
+          last_column = self.last_column - 1
+          return last_column if last_lineno == 1
+
+          lines = File.binread(path).split("\n")
+          lines[0..(last_lineno - 2)].sum(&:size) +
+            last_lineno - 1 + # For \n
+            last_column
+        end
+
+        def to_source(path)
+          File.binread(path)[first_index(path)..last_index(path)]
         end
       end
     end
