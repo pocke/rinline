@@ -29,12 +29,9 @@ module Rinline
           target_iseq = target_method.to_iseq
           next unless target_iseq.short?
 
-          target_path = target_iseq.absolute_path
-          target_ast = RubyVM::AbstractSyntaxTree.of(target_method)
-
           replacements << {
             from: node,
-            to: method_body_ast(target_ast).to_source(target_path),
+            to: target_method,
           }
         end
       end
@@ -50,10 +47,8 @@ module Rinline
       method_ast.children[2]
     end
 
-    # TODO: replacement defined in another file
-    #
     # @param original_method [Method]
-    # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: String}>]
+    # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: Method}>]
     private def replace(original_method, replacements)
       original_ast = original_method.to_ast
       original_path = original_method.to_iseq.absolute_path
@@ -62,11 +57,13 @@ module Rinline
 
       replacements.each do |replacement|
         from = replacement[:from]
-        to = "(#{replacement[:to]})"
+        to_method = replacement[:to]
+        to_ast = to_method.to_ast
+        to_path = to_method.to_iseq.absolute_path
+        to_code = "(#{method_body_ast(to_ast).to_source(to_path)})"
 
-
-        ret[(from.first_index(original_path) + offset)..(from.last_index(original_path) + offset)] = to
-        offset += to.size - from.to_source(original_path).size
+        ret[(from.first_index(original_path) + offset)..(from.last_index(original_path) + offset)] = to_code
+        offset += to_code.size - from.to_source(original_path).size
       end
 
       ret.force_encoding(Encoding::UTF_8) # TODO: Support other encodings
