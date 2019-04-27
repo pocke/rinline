@@ -46,6 +46,22 @@ class OptimizerTest < Minitest::Test
       end', optimized
   end
 
+  def test_optimize_with_empty_method
+    klass = Class.new do
+      def foo
+        bar
+      end
+
+      def bar
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_equal 'def foo
+        ()
+      end', optimized
+  end
+
   def test_optimize_many_times
     klass = Class.new do
       def foo

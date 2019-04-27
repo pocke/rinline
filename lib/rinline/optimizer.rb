@@ -38,7 +38,13 @@ module Rinline
 
           to_ast = target_method.to_ast
           to_path = target_method.absolute_path
-          to_code = "(#{replace_lvar(to_ast.method_body, to_path)})"
+          body = to_ast.method_body
+          to_code =
+            if body
+              "(#{replace_lvar(body, to_path)})"
+            else
+              "()"
+            end
           replacements << {
             from: node.location(path),
             to: to_code,
@@ -63,7 +69,12 @@ module Rinline
           lvar_suffix = gen_lvar_suffix
 
           args = assign_args(to_ast, node, path, lvar_suffix)
-          body = replace_lvar(to_ast.method_body, to_path, lvar_suffix: lvar_suffix)
+          body =
+            if to_ast.method_body
+              replace_lvar(to_ast.method_body, to_path, lvar_suffix: lvar_suffix)
+            else
+              "()"
+            end
           to_code = "(#{args}#{body})"
           replacements << {
             from: node.location(path),
