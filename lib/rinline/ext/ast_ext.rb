@@ -11,8 +11,8 @@ module Rinline
           # TODO: Remove this workaround by refining offset
           if ((type == :IF || type == :UNLESS) && children[2] == nil && children[1].before_than(children[0])) ||
              ((type == :WHILE || type == :UNTIL) && children[1].before_than(children[0]))
-            block.call(children[1])
-            block.call(children[0])
+            block.call(children[1], opt)
+            block.call(children[0], opt)
           else
             self.children.each.with_index do |child, index|
               next if opt[:ignore_index] == index
