@@ -10,7 +10,15 @@ module Rinline
           end
         end
 
-        def first_index(path)
+        def to_source(path)
+          File.binread(path)[first_index(path)..last_index(path)]
+        end
+
+        def location(path)
+          Location.new(first_index(path), last_index(path))
+        end
+
+        private def first_index(path)
           return first_column if first_lineno == 1
 
           lines = File.binread(path).split("\n")
@@ -19,7 +27,7 @@ module Rinline
             first_column
         end
 
-        def last_index(path)
+        private def last_index(path)
           last_column = self.last_column - 1
           return last_column if last_lineno == 1
 
@@ -27,10 +35,6 @@ module Rinline
           lines[0..(last_lineno - 2)].sum(&:size) +
             last_lineno - 1 + # For \n
             last_column
-        end
-
-        def to_source(path)
-          File.binread(path)[first_index(path)..last_index(path)]
         end
       end
     end

@@ -3,6 +3,7 @@ require_relative './rinline/ext/method_ext'
 require_relative './rinline/ext/ast_ext'
 require_relative './rinline/ext/iseq_ext'
 require_relative './rinline/optimizer'
+require_relative './rinline/location'
 
 module Rinline
   # FIXME

@@ -20,9 +20,12 @@ module Rinline
     def optimize
       ast = method.to_ast
       replacements = []
+      lvar_replacements = []
+      path = method.absolute_path
 
       ast.traverse do |node|
-        if node.type == :VCALL
+        case node.type
+        when :VCALL
           target_method_name = node.children[0]
           next if method_name == target_method_name
           target_method = klass.instance_method(target_method_name)
@@ -34,14 +37,16 @@ module Rinline
           to_path = target_method.absolute_path
           to_code = "(#{method_body_ast(to_ast).to_source(to_path)})"
           replacements << {
-            from: node,
+            from: node.location(path),
             to: to_code,
           }
+        when :LASGN
+          # TODO
         end
       end
 
       return if replacements.empty?
-      return replace(method, replacements)
+      return replace(method, replacements + lvar_replacements)
     end
 
     attr_reader :klass, :method_name, :method
@@ -52,19 +57,19 @@ module Rinline
     end
 
     # @param original_method [Method]
-    # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: String}>]
+    # @param replacements [Array<{from: Rinline::Location, to: String}>]
     private def replace(original_method, replacements)
       original_ast = original_method.to_ast
       original_path = original_method.absolute_path
       ret = original_ast.to_source(original_path)
-      offset = -original_ast.first_index(original_path)
+      offset = -original_ast.location(original_path).first_index
 
       replacements.each do |replacement|
         from = replacement[:from]
         to_code = replacement[:to]
 
-        ret[(from.first_index(original_path) + offset)..(from.last_index(original_path) + offset)] = to_code
-        offset += to_code.size - from.to_source(original_path).size
+        ret[(from.first_index + offset)..(from.last_index + offset)] = to_code
+        offset += to_code.size - from.size
       end
 
       ret.force_encoding(Encoding::UTF_8) # TODO: Support other encodings
