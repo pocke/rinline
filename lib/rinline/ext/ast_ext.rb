@@ -21,10 +21,15 @@ module Rinline
         # var = 1
         # ^^^
         def location_variable_name_of_lasgn(path)
-          raise "Unexpected type: #{self.type}" unless self.type == :LASGN
+          type! :LASGN
           first_index = first_index(path)
 
           Location.new(first_index, first_index + self.children[0].size)
+        end
+
+        def method_body
+          type! :SCOPE
+          self.children[2]
         end
 
         private def first_index(path)
@@ -44,6 +49,10 @@ module Rinline
           lines[0..(last_lineno - 2)].sum(&:size) +
             last_lineno - 1 + # For \n
             last_column
+        end
+
+        private def type!(type)
+          raise "Unexpected type: #{self.type}" unless self.type == type
         end
       end
     end

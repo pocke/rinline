@@ -34,7 +34,7 @@ module Rinline
 
           to_ast = target_method.to_ast
           to_path = target_method.absolute_path
-          to_code = "(#{replace_lvar(method_body_ast(to_ast), to_path)})"
+          to_code = "(#{replace_lvar(to_ast.method_body, to_path)})"
           replacements << {
             from: node.location(path),
             to: to_code,
@@ -48,10 +48,6 @@ module Rinline
 
     attr_reader :klass, :method_name, :method
     private :klass, :method_name, :method
-
-    private def method_body_ast(method_ast)
-      method_ast.children[2]
-    end
 
     # @param original_method [Method]
     # @param replacements [Array<{from: Rinline::Location, to: String}>]
