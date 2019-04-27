@@ -297,4 +297,20 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_nil optimized
   end
+
+  # TODO: Optimize it instead of nil
+  def test_optimize_vcall_optarg
+    klass = Class.new do
+      def foo
+        update
+      end
+
+      def update(target = @cpu.update)
+        target
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_nil optimized
+  end
 end

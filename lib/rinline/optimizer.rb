@@ -38,6 +38,8 @@ module Rinline
           next unless target_method.expandable?
 
           to_ast = target_method.to_ast
+          next unless to_ast.expandable_method?(0)
+
           to_path = target_method.absolute_path
           body = to_ast.method_body
           to_code =
