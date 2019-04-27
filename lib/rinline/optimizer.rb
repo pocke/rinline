@@ -39,6 +39,28 @@ module Rinline
             from: node.location(path),
             to: to_code,
           }
+        when :FCALL
+          target_method_name = node.children[0]
+          next if method_name == target_method_name
+          target_method = klass.instance_method(target_method_name)
+          next unless target_method.ruby_method?
+          target_iseq = target_method.to_iseq
+          next unless target_iseq.short?
+
+          to_ast = target_method.to_ast
+          args = node.fcall_args
+          next unless to_ast.expandable_method?(args.array_size)
+
+          to_path = target_method.absolute_path
+          lvar_suffix = gen_lvar_suffix
+
+          args = assign_args(to_ast, node, path, lvar_suffix)
+          body = replace_lvar(to_ast.method_body, to_path, lvar_suffix: lvar_suffix)
+          to_code = "(#{args}#{body})"
+          replacements << {
+            from: node.location(path),
+            to: to_code
+          }
         end
       end
 
@@ -66,9 +88,8 @@ module Rinline
       ret
     end
 
-    private def replace_lvar(ast, path)
+    private def replace_lvar(ast, path, lvar_suffix: gen_lvar_suffix)
       replacements = []
-      lvar_suffix = "__#{SecureRandom.hex(5)}"
 
       ast.traverse do |node|
         case node.type
@@ -86,6 +107,18 @@ module Rinline
       end
 
       replace(ast, path, replacements)
+    end
+
+    private def assign_args(method_node, fcall_node, fcall_path, lvar_suffix)
+      params = method_node.children[0]
+      args = fcall_node.fcall_args.array_content
+      args.map.with_index do |arg, index|
+        "#{params[index]}#{lvar_suffix} = #{arg.to_source(fcall_path)}"
+      end.join(';') + ';'
+    end
+
+    private def gen_lvar_suffix
+      "__#{SecureRandom.hex(5)}"
     end
   end
 end

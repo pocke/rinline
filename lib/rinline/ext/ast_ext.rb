@@ -32,6 +32,91 @@ module Rinline
           self.children[2]
         end
 
+        def method_args
+          type! :SCOPE
+          self.children[1]
+        end
+
+        # Extensions for ARGS
+        def args_pre_num
+          type! :ARGS
+          self.children[0]
+        end
+
+        def args_pre_init
+          type! :ARGS
+          self.children[1]
+        end
+
+        def args_opt
+          type! :ARGS
+          self.children[2]
+        end
+
+        def args_first_post
+          type! :ARGS
+          self.children[3]
+        end
+
+        def args_post_num
+          type! :ARGS
+          self.children[4]
+        end
+
+        def args_post_init
+          type! :ARGS
+          self.children[5]
+        end
+
+        def args_rest
+          type! :ARGS
+          self.children[6]
+        end
+
+        def args_kw
+          type! :ARGS
+          self.children[7]
+        end
+
+        def args_kwrest
+          type! :ARGS
+          self.children[8]
+        end
+
+        def args_block
+          type! :ARGS
+          self.children[9]
+        end
+
+        def expandable_method?(parameter_size)
+          a = self.method_args
+          a.args_pre_num == parameter_size &&
+            a.args_pre_init == nil &&
+            a.args_opt == nil &&
+            a.args_first_post == nil &&
+            a.args_post_num == 0 &&
+            a.args_post_init == nil &&
+            a.args_rest == nil &&
+            a.args_kw == nil &&
+            a.args_kwrest == nil &&
+            a.args_block == nil
+        end
+
+        def array_size
+          type! :ARRAY
+          self.children.size - 1
+        end
+
+        def array_content
+          type! :ARRAY
+          self.children[0..-2]
+        end
+
+        def fcall_args
+          type! :FCALL
+          self.children[1]
+        end
+
         private def first_index(path)
           return first_column if first_lineno == 1
 
