@@ -92,13 +92,15 @@ module Rinline
     private def replace_lvar(ast, path, lvar_suffix: gen_lvar_suffix)
       replacements = []
 
-      ast.traverse do |node|
+      ast.traverse do |node, opt|
         case node.type
         when :LASGN
           replacements << {
             from: node.location_variable_name_of_lasgn(path),
             to: "#{node.children[0]}#{lvar_suffix}",
           }
+          # for op asgn. e.g. x += 1
+          opt[:ignore_index] = 1
         when :LVAR
           replacements << {
             from: node.location(path),

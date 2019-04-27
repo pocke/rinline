@@ -4,8 +4,10 @@ module Rinline
     module AstExt
       refine RubyVM::AbstractSyntaxTree::Node do
         def traverse(&block)
-          block.call self
-          self.children.each do |child|
+          opt = {}
+          block.call self, opt
+          self.children.each.with_index do |child, index|
+            next if opt[:ignore_index] == index
             child.traverse(&block) if child.is_a?(RubyVM::AbstractSyntaxTree::Node)
           end
         end
@@ -24,7 +26,7 @@ module Rinline
           type! :LASGN
           first_index = first_index(path)
 
-          Location.new(first_index, first_index + self.children[0].size)
+          Location.new(first_index, first_index + self.children[0].size - 1)
         end
 
         def method_body
