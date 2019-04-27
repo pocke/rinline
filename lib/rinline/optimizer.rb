@@ -19,9 +19,8 @@ module Rinline
 
     def optimize
       ast = method.to_ast
-      replacements = []
-      lvar_replacements = []
       path = method.absolute_path
+      replacements = []
 
       ast.traverse do |node|
         case node.type
@@ -35,18 +34,16 @@ module Rinline
 
           to_ast = target_method.to_ast
           to_path = target_method.absolute_path
-          to_code = "(#{method_body_ast(to_ast).to_source(to_path)})"
+          to_code = "(#{replace_lvar(method_body_ast(to_ast), to_path)})"
           replacements << {
             from: node.location(path),
             to: to_code,
           }
-        when :LASGN
-          # TODO
         end
       end
 
       return if replacements.empty?
-      return replace(method, replacements + lvar_replacements)
+      return replace(ast, path, replacements).force_encoding(Encoding::UTF_8) # TODO: Support other encodings
     end
 
     attr_reader :klass, :method_name, :method
@@ -58,9 +55,7 @@ module Rinline
 
     # @param original_method [Method]
     # @param replacements [Array<{from: Rinline::Location, to: String}>]
-    private def replace(original_method, replacements)
-      original_ast = original_method.to_ast
-      original_path = original_method.absolute_path
+    private def replace(original_ast, original_path, replacements)
       ret = original_ast.to_source(original_path)
       offset = -original_ast.location(original_path).first_index
 
@@ -72,7 +67,29 @@ module Rinline
         offset += to_code.size - from.size
       end
 
-      ret.force_encoding(Encoding::UTF_8) # TODO: Support other encodings
+      ret
+    end
+
+    private def replace_lvar(ast, path)
+      replacements = []
+      lvar_suffix = "__#{SecureRandom.hex(5)}"
+
+      ast.traverse do |node|
+        case node.type
+        when :LASGN
+          replacements << {
+            from: node.location_variable_name_of_lasgn(path),
+            to: "#{node.children[0]}#{lvar_suffix}",
+          }
+        when :LVAR
+          replacements << {
+            from: node.location(path),
+            to: "(#{node.children[0]}#{lvar_suffix})"
+          }
+        end
+      end
+
+      replace(ast, path, replacements)
     end
   end
 end

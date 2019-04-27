@@ -1,3 +1,5 @@
+require 'securerandom'
+
 require_relative "./rinline/version"
 require_relative './rinline/ext/method_ext'
 require_relative './rinline/ext/ast_ext'

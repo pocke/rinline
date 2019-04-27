@@ -18,6 +18,15 @@ module Rinline
           Location.new(first_index(path), last_index(path))
         end
 
+        # var = 1
+        # ^^^
+        def location_variable_name_of_lasgn(path)
+          raise "Unexpected type: #{self.type}" unless self.type == :LASGN
+          first_index = first_index(path)
+
+          Location.new(first_index, first_index + self.children[0].size)
+        end
+
         private def first_index(path)
           return first_column if first_lineno == 1
 
