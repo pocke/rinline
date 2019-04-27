@@ -29,13 +29,13 @@ module Rinline
     end
   end
 
-  def optimize_klass(klass)
+  def optimize_class(klass)
     debug_print "class: #{klass}"
     optimize_instance_methods(klass)
     optimize_instance_methods(klass.singleton_class)
   end
 
-  alias optimize_module optimize_klass
+  alias optimize_module optimize_class
 
   def optimize_namespace(mod)
     debug_print "namespace: #{mod}"
