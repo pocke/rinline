@@ -97,4 +97,23 @@ class OptimizerTest < Minitest::Test
         ("foobar")
       end', optimized
   end
+
+  def test_optimize_with_multi_sentences
+    klass = Class.new do
+      def foo
+        bar + 1
+      end
+
+      def bar
+        p 2
+        2
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_equal 'def foo
+        (p 2
+        2) + 1
+      end', optimized
+  end
 end
