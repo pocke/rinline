@@ -9,6 +9,14 @@ module Rinline
         def to_iseq
           RubyVM::InstructionSequence.of(self)
         end
+
+        def ruby_method?
+          !!source_location
+        end
+
+        def absolute_path
+          source_location[0]
+        end
       end
     end
   end

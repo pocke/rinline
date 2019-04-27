@@ -26,6 +26,7 @@ module Rinline
           target_method_name = node.children[0]
           next if method_name == target_method_name
           target_method = klass.instance_method(target_method_name)
+          next unless target_method.ruby_method?
           target_iseq = target_method.to_iseq
           next unless target_iseq.short?
 
@@ -51,7 +52,7 @@ module Rinline
     # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: Method}>]
     private def replace(original_method, replacements)
       original_ast = original_method.to_ast
-      original_path = original_method.to_iseq.absolute_path
+      original_path = original_method.absolute_path
       ret = original_ast.to_source(original_path)
       offset = -original_ast.first_index(original_path)
 
@@ -59,7 +60,7 @@ module Rinline
         from = replacement[:from]
         to_method = replacement[:to]
         to_ast = to_method.to_ast
-        to_path = to_method.to_iseq.absolute_path
+        to_path = to_method.absolute_path
         to_code = "(#{method_body_ast(to_ast).to_source(to_path)})"
 
         ret[(from.first_index(original_path) + offset)..(from.last_index(original_path) + offset)] = to_code

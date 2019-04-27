@@ -78,4 +78,23 @@ class OptimizerTest < Minitest::Test
         bar") + ("xxx")
       end', optimized
   end
+
+  def test_optimize_with_c_method
+    klass = Class.new do
+      def foo
+        puts
+        bar
+      end
+
+      def bar
+        "foobar"
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_equal 'def foo
+        puts
+        ("foobar")
+      end', optimized
+  end
 end
