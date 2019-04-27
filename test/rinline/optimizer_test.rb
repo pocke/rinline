@@ -193,4 +193,15 @@ class OptimizerTest < Minitest::Test
         (x__hexhex) until (y__hexhex))
       end', optimized
   end
+
+  def test_optimize_with_not_defined_method
+    klass = Class.new do
+      def foo
+        bar
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_nil optimized
+  end
 end

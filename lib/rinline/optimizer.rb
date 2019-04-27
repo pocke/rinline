@@ -28,7 +28,12 @@ module Rinline
         when :VCALL
           target_method_name = node.children[0]
           next if method_name == target_method_name
-          target_method = klass.instance_method(target_method_name)
+          target_method =
+            begin
+              klass.instance_method(target_method_name)
+            rescue NameError
+              next
+            end
           next unless target_method.ruby_method?
           target_iseq = target_method.to_iseq
           next unless target_iseq.short?
@@ -43,7 +48,12 @@ module Rinline
         when :FCALL
           target_method_name = node.children[0]
           next if method_name == target_method_name
-          target_method = klass.instance_method(target_method_name)
+          target_method =
+            begin
+              klass.instance_method(target_method_name)
+            rescue NameError
+              next
+            end
           next unless target_method.ruby_method?
           target_iseq = target_method.to_iseq
           next unless target_iseq.short?
