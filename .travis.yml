@@ -1,0 +1,10 @@
+language: ruby
+
+rvm:
+  - 2.6.3
+  - ruby-head
+
+cache: bundler
+
+script:
+  - bundle exec rake
