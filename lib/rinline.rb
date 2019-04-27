@@ -13,7 +13,14 @@ module Rinline
 
   def optimize_instance_method(klass, method_name)
     optimized = Optimizer.optimize(klass, method_name)
-    klass.class_eval "undef :#{method_name}; #{optimized}" if optimized
+    unless optimized
+      debug_print "skip: #{klass}##{method_name}"
+      return
+    end
+    debug_print "optimizing: #{klass}##{method_name}"
+
+    klass.class_eval "undef :#{method_name}; #{optimized}"
+    debug_print "optimized: #{klass}##{method_name}"
   end
 
   def optimize_instance_methods(klass)
@@ -35,5 +42,13 @@ module Rinline
       child = mod.const_get(child)
       optimize_namespace(child) if child.is_a?(Module)
     end
+  end
+
+  def debug?
+    ENV['RINLINE_DEBUG']
+  end
+
+  def debug_print(*msg)
+    $stderr.puts(*msg) if debug?
   end
 end
