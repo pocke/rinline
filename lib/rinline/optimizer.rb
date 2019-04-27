@@ -56,6 +56,7 @@ module Rinline
 
           to_ast = target_method.to_ast
           args = node.fcall_args
+          next unless args.type == :ARRAY
           next unless to_ast.expandable_method?(args.array_size)
 
           to_path = target_method.absolute_path
