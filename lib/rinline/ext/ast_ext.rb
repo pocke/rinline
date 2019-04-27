@@ -6,9 +6,18 @@ module Rinline
         def traverse(&block)
           opt = {}
           block.call self, opt
-          self.children.each.with_index do |child, index|
-            next if opt[:ignore_index] == index
-            child.traverse(&block) if child.is_a?(RubyVM::AbstractSyntaxTree::Node)
+
+          # workaround for modifiers
+          # TODO: Remove this workaround by refining offset
+          if ((type == :IF || type == :UNLESS) && children[2] == nil && children[1].before_than(children[0])) ||
+             ((type == :WHILE || type == :UNTIL) && children[1].before_than(children[0]))
+            block.call(children[1])
+            block.call(children[0])
+          else
+            self.children.each.with_index do |child, index|
+              next if opt[:ignore_index] == index
+              child.traverse(&block) if child.is_a?(RubyVM::AbstractSyntaxTree::Node)
+            end
           end
         end
 
@@ -140,6 +149,14 @@ module Rinline
 
         private def type!(type)
           raise "Unexpected type: #{self.type}" unless self.type == type
+        end
+
+        def before_than(right)
+          if self.first_lineno == right.first_lineno
+            self.first_column < right.first_column
+          else
+            self.first_lineno < right.first_lineno
+          end
         end
       end
     end

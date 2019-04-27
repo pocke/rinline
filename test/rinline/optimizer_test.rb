@@ -162,4 +162,35 @@ class OptimizerTest < Minitest::Test
         (x__hexhex))
       end', optimized
   end
+
+  def test_optimize_with_modifiers
+    stub(SecureRandom).hex { "hexhex" }
+
+    klass = Class.new do
+      def foo
+        x = 2
+        bar(x, 3)
+        baz(3, x)
+      end
+
+      def bar(x, y)
+        x if y
+        x unless y
+      end
+
+      def baz(x, y)
+        x while y
+        x until y
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_equal 'def foo
+        x = 2
+        (x__hexhex = x;y__hexhex = 3;(x__hexhex) if (y__hexhex)
+        (x__hexhex) unless (y__hexhex))
+        (x__hexhex = 3;y__hexhex = x;(x__hexhex) while (y__hexhex)
+        (x__hexhex) until (y__hexhex))
+      end', optimized
+  end
 end
