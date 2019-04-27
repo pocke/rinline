@@ -251,6 +251,25 @@ class OptimizerTest < Minitest::Test
       end', optimized
   end
 
+  def test_optimize_with_modifier_2
+    stub(SecureRandom).hex { "hexhex" }
+
+    klass = Class.new do
+      def foo
+        bar(1)
+      end
+
+      def bar(x)
+        baz(x) if @something <= x
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_equal 'def foo
+        (x__hexhex = 1;baz((x__hexhex)) if @something <= (x__hexhex))
+      end', optimized
+  end
+
   def test_optimize_with_not_defined_method
     klass = Class.new do
       def foo
