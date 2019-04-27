@@ -20,6 +20,7 @@ module Rinline
     def optimize
       ast = method.to_ast
       return unless ast
+      return if ast.has_child?(:CONST)
       path = method.absolute_path
       replacements = []
 

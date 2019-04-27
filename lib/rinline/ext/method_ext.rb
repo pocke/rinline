@@ -17,7 +17,7 @@ module Rinline
           ruby_method? &&
             to_iseq.short? &&
             absolute_path != "(eval)" &&
-            !to_ast.has_child?(:SUPER, :ZSUPER, :RETURN) &&
+            !to_ast.has_child?(:SUPER, :ZSUPER, :RETURN, :CONST) &&
             # HACK: RubyVM::AST omits `return` from tree if it is meaningless.
             # So checking AST is not enough.
             !to_ast.to_source(absolute_path).match?(/\breturn\b/)
