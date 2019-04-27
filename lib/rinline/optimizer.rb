@@ -30,9 +30,12 @@ module Rinline
           target_iseq = target_method.to_iseq
           next unless target_iseq.short?
 
+          to_ast = target_method.to_ast
+          to_path = target_method.absolute_path
+          to_code = "(#{method_body_ast(to_ast).to_source(to_path)})"
           replacements << {
             from: node,
-            to: target_method,
+            to: to_code,
           }
         end
       end
@@ -49,7 +52,7 @@ module Rinline
     end
 
     # @param original_method [Method]
-    # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: Method}>]
+    # @param replacements [Array<{from: RubyVM::AbstractSyntaxTree, to: String}>]
     private def replace(original_method, replacements)
       original_ast = original_method.to_ast
       original_path = original_method.absolute_path
@@ -58,10 +61,7 @@ module Rinline
 
       replacements.each do |replacement|
         from = replacement[:from]
-        to_method = replacement[:to]
-        to_ast = to_method.to_ast
-        to_path = to_method.absolute_path
-        to_code = "(#{method_body_ast(to_ast).to_source(to_path)})"
+        to_code = replacement[:to]
 
         ret[(from.first_index(original_path) + offset)..(from.last_index(original_path) + offset)] = to_code
         offset += to_code.size - from.to_source(original_path).size
