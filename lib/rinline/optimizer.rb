@@ -19,6 +19,7 @@ module Rinline
 
     def optimize
       ast = method.to_ast
+      return unless ast
       path = method.absolute_path
       replacements = []
 
