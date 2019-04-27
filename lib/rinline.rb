@@ -12,12 +12,12 @@ module Rinline
   extend self
 
   def optimize_instance_method(klass, method_name)
+    debug_print "optimizing: #{klass}##{method_name}"
     optimized = Optimizer.optimize(klass, method_name)
     unless optimized
-      debug_print "skip: #{klass}##{method_name}"
+      debug_print "skipped: #{klass}##{method_name}"
       return
     end
-    debug_print "optimizing: #{klass}##{method_name}"
 
     klass.class_eval "undef :#{method_name}; #{optimized}"
     debug_print "optimized: #{klass}##{method_name}"
@@ -30,6 +30,7 @@ module Rinline
   end
 
   def optimize_klass(klass)
+    debug_print "class: #{klass}"
     optimize_instance_methods(klass)
     optimize_instance_methods(klass.singleton_class)
   end
@@ -37,8 +38,11 @@ module Rinline
   alias optimize_module optimize_klass
 
   def optimize_namespace(mod)
+    debug_print "namespace: #{mod}"
     optimize_module(mod)
-    mod.constants.each do |child|
+    constants = mod.constants
+    constants -= Struct.constants if mod < Struct
+    constants.each do |child|
       child = mod.const_get(child)
       optimize_namespace(child) if child.is_a?(Module)
     end
