@@ -23,7 +23,7 @@ module Rinline
       path = method.absolute_path
       replacements = []
 
-      ast.traverse do |node|
+      ast.traverse do |node, opt|
         case node.type
         when :VCALL
           target_method_name = node.children[0]
@@ -80,6 +80,7 @@ module Rinline
             from: node.location(path),
             to: to_code
           }
+          opt[:ignore_index] = 1 # Ignore arguments
         end
       end
 
