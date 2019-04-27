@@ -135,6 +135,13 @@ module Rinline
           self.children[1]
         end
 
+        def lasgn_opasgn?
+          type! :LASGN
+          right = children[1]
+          first_lineno == right.first_lineno &&
+            first_column == right.first_column
+        end
+
         private def first_index(path)
           return first_column if first_lineno == 1
 

@@ -117,16 +117,16 @@ module Rinline
       ast.traverse do |node, opt|
         case node.type
         when :LASGN
+          next if node.lasgn_opasgn?
+
           replacements << {
             from: node.location_variable_name_of_lasgn(path),
             to: "#{node.children[0]}#{lvar_suffix}",
           }
-          # for op asgn. e.g. x += 1
-          opt[:ignore_index] = 1
         when :LVAR
           replacements << {
             from: node.location(path),
-            to: "(#{node.children[0]}#{lvar_suffix})"
+            to: "#{node.children[0]}#{lvar_suffix}"
           }
         end
       end
