@@ -29,6 +29,13 @@ module Rinline
           Location.new(first_index(path), last_index(path))
         end
 
+        def has_child?(*types)
+          traverse do |child|
+            return true if child.is_a?(RubyVM::AbstractSyntaxTree::Node) && types.include?(child.type)
+          end
+          return false
+        end
+
         # var = 1
         # ^^^
         def location_variable_name_of_lasgn(path)

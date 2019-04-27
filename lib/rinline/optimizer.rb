@@ -34,9 +34,7 @@ module Rinline
             rescue NameError
               next
             end
-          next unless target_method.ruby_method?
-          target_iseq = target_method.to_iseq
-          next unless target_iseq.short?
+          next unless target_method.expandable?
 
           to_ast = target_method.to_ast
           to_path = target_method.absolute_path
@@ -54,9 +52,7 @@ module Rinline
             rescue NameError
               next
             end
-          next unless target_method.ruby_method?
-          target_iseq = target_method.to_iseq
-          next unless target_iseq.short?
+          next unless target_method.expandable?
 
           to_ast = target_method.to_ast
           args = node.fcall_args

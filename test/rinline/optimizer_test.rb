@@ -204,4 +204,21 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_nil optimized
   end
+
+  def test_optimize_with_return
+    klass = Class.new do
+      def foo
+        bar
+      end
+
+      def bar
+        if foo
+          return 1
+        end
+      end
+    end
+
+    optimized = Rinline::Optimizer.optimize(klass, :foo)
+    assert_nil optimized
+  end
 end
