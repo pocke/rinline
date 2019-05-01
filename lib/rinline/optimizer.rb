@@ -18,6 +18,8 @@ module Rinline
     end
 
     def optimize
+      return unless method.ruby_method?
+      return if method.eval?
       ast = method.to_ast
       return unless ast
       return if ast.has_child?(:CONST)

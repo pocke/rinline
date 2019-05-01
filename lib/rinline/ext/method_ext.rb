@@ -15,8 +15,8 @@ module Rinline
 
         def expandable?
           ruby_method? &&
-            to_iseq.short? &&
-            absolute_path != "(eval)" &&
+            to_iseq&.short? &&
+            !eval? &&
             !to_ast.has_child?(:SUPER, :ZSUPER, :RETURN, :CONST) &&
             # HACK: RubyVM::AST omits `return` from tree if it is meaningless.
             # So checking AST is not enough.
@@ -25,6 +25,10 @@ module Rinline
 
         def ruby_method?
           !!source_location
+        end
+
+        def eval?
+          absolute_path == '(eval)'
         end
 
         def absolute_path
