@@ -128,6 +128,10 @@ module Rinline
             from: node.location(path),
             to: "#{node.children[0]}#{lvar_suffix}"
           }
+        when :OP_ASGN_OR
+          opt[:ignore_index] = 0
+        when :OP_ASGN_AND
+          opt[:ignore_index] = 0
         end
       end
 
