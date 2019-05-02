@@ -46,7 +46,7 @@ module Rinline
           body = to_ast.method_body
           to_code =
             if body
-              "(#{replace_lvar(body, to_path)})"
+              "((#{replace_lvar(body, to_path)}))"
             else
               "()"
             end
@@ -80,7 +80,7 @@ module Rinline
             else
               "()"
             end
-          to_code = "(#{args}#{body})"
+          to_code = "((#{args}#{body}))"
           replacements << {
             from: node.location(path),
             to: to_code

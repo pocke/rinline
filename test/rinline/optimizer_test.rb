@@ -14,7 +14,7 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
-        ("dog") + "cat"
+        (("dog")) + "cat"
       end', optimized
   end
 
@@ -42,7 +42,7 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :hello)
     assert_equal 'def hello
-        "こんにちは、" + ("ぽっけ")
+        "こんにちは、" + (("ぽっけ"))
       end', optimized
   end
 
@@ -89,9 +89,9 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
-        ("x") + ("y") +
-          ("foo
-        bar") + ("xxx")
+        (("x")) + (("y")) +
+          (("foo
+        bar")) + (("xxx"))
       end', optimized
   end
 
@@ -110,7 +110,7 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
         puts
-        ("foobar")
+        (("foobar"))
       end', optimized
   end
 
@@ -128,8 +128,8 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
-        (p 2
-        2) + 1
+        ((p 2
+        2)) + 1
       end', optimized
   end
 
@@ -150,7 +150,7 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
         x = 2
-        (x__hexhex = 10;y__hexhex = 4;x__hexhex * y__hexhex) + x
+        ((x__hexhex = 10;y__hexhex = 4;x__hexhex * y__hexhex)) + x
       end', optimized
   end
 
@@ -173,7 +173,7 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
-        (x__hexhex = baz;p x__hexhex)
+        ((x__hexhex = baz;p x__hexhex))
       end', optimized
   end
 
@@ -214,9 +214,9 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
         x = 2
-        (x__hexhex = x;x__hexhex += 1
+        ((x__hexhex = x;x__hexhex += 1
         x__hexhex %= 2
-        x__hexhex)
+        x__hexhex))
       end', optimized
   end
 
@@ -239,9 +239,9 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
         x = 2
-        (x__hexhex = x;x__hexhex ||= 1
+        ((x__hexhex = x;x__hexhex ||= 1
         x__hexhex &&= 2
-        x__hexhex)
+        x__hexhex))
       end', optimized
   end
 
@@ -269,10 +269,10 @@ class OptimizerTest < Minitest::Test
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
         x = 2
-        (x__hexhex = x;y__hexhex = 3;x__hexhex if y__hexhex
-        x__hexhex unless y__hexhex)
-        (x__hexhex = 3;y__hexhex = x;x__hexhex while y__hexhex
-        x__hexhex until y__hexhex)
+        ((x__hexhex = x;y__hexhex = 3;x__hexhex if y__hexhex
+        x__hexhex unless y__hexhex))
+        ((x__hexhex = 3;y__hexhex = x;x__hexhex while y__hexhex
+        x__hexhex until y__hexhex))
       end', optimized
   end
 
@@ -291,7 +291,7 @@ class OptimizerTest < Minitest::Test
 
     optimized = Rinline::Optimizer.optimize(klass, :foo)
     assert_equal 'def foo
-        (x__hexhex = 1;baz(x__hexhex) if @something <= x__hexhex)
+        ((x__hexhex = 1;baz(x__hexhex) if @something <= x__hexhex))
       end', optimized
   end
 
