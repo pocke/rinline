@@ -14,7 +14,9 @@ class TestRinline < Minitest::Test
 
     assert_equal "dogcat", klass.new.foo
 
-    Rinline.optimize_instance_method(klass, :foo)
+    Rinline.optimize do |runner|
+      runner.optimize_instance_method(klass, :foo)
+    end
 
     assert_equal "dogcat", klass.new.foo
   end
@@ -34,7 +36,9 @@ class TestRinline < Minitest::Test
 
     assert_equal "dogcat", klass.new.foo
 
-    Rinline.optimize_instance_method(klass, :foo)
+    Rinline.optimize do |runner|
+      runner.optimize_instance_method(klass, :foo)
+    end
 
     assert_equal "dogcat", klass.new.foo
   end
@@ -53,7 +57,9 @@ class TestRinline < Minitest::Test
 
     assert_equal 42, klass.new.foo
 
-    Rinline.optimize_instance_method(klass, :foo)
+    Rinline.optimize do |runner|
+      runner.optimize_instance_method(klass, :foo)
+    end
 
     assert_equal 42, klass.new.foo
   end
