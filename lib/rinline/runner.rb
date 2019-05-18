@@ -1,15 +1,26 @@
 module Rinline
   class Runner
+    class << self
+      attr_accessor :current
+    end
+
+    attr_accessor :debug, :iseq_threshold
+
+    def initialize
+      @debug = false
+      @iseq_threshold = 50
+    end
+
     def optimize_instance_method(klass, method_name)
-      Rinline.debug_print "optimizing: #{klass}##{method_name}"
+      debug_print "optimizing: #{klass}##{method_name}"
       optimized = Optimizer.optimize(klass, method_name)
       unless optimized
-        Rinline.debug_print "skipped: #{klass}##{method_name}"
+        debug_print "skipped: #{klass}##{method_name}"
         return
       end
 
       klass.class_eval "undef :#{method_name}; #{optimized}"
-      Rinline.debug_print "optimized: #{klass}##{method_name}"
+      debug_print "optimized: #{klass}##{method_name}"
     end
 
     def optimize_instance_methods(klass)
@@ -19,7 +30,7 @@ module Rinline
     end
 
     def optimize_class(klass)
-      Rinline.debug_print "class: #{klass}"
+      debug_print "class: #{klass}"
       optimize_instance_methods(klass)
       optimize_instance_methods(klass.singleton_class)
     end
@@ -27,7 +38,7 @@ module Rinline
     alias optimize_module optimize_class
 
     def optimize_namespace(mod)
-      Rinline.debug_print "namespace: #{mod}"
+      debug_print "namespace: #{mod}"
       optimize_module(mod)
       constants = mod.constants
       constants -= Struct.constants if mod < Struct
@@ -35,6 +46,10 @@ module Rinline
         child = mod.const_get(child)
         optimize_namespace(child) if child.is_a?(Module)
       end
+    end
+
+    def debug_print(*msg)
+      $stderr.puts(*msg) if debug
     end
   end
 end

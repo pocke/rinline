@@ -1,6 +1,10 @@
 require 'test_helper'
 
 class OptimizerTest < Minitest::Test
+  def setup
+    Rinline::Runner.current = Rinline::Runner.new
+  end
+
   def test_optimize
     klass = Class.new do
       def foo

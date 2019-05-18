@@ -3,7 +3,7 @@ module Rinline
     module IseqExt
       refine RubyVM::InstructionSequence do
         def short?
-          self.to_a[13].size < 50
+          self.to_a[13].size < Runner.current.iseq_threshold
         end
       end
     end

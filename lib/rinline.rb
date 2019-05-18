@@ -9,19 +9,14 @@ require_relative './rinline/location'
 require_relative './rinline/runner'
 
 module Rinline
-  # FIXME
   extend self
 
   def optimize(&block)
     runner = Runner.new
+    Runner.current = runner
     block.call runner
-  end
+    Runner.current = nil
 
-  def debug?
-    ENV['RINLINE_DEBUG']
-  end
-
-  def debug_print(*msg)
-    $stderr.puts(*msg) if debug?
+    $stderr.puts "[Rinline] Optimizing is finised" if runner.debug
   end
 end
