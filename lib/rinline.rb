@@ -12,7 +12,7 @@ module Rinline
   # FIXME
   extend self
 
-  def self.optimize(&block)
+  def optimize(&block)
     runner = Runner.new
     block.call runner
   end
