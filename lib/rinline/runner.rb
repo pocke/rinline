@@ -5,10 +5,12 @@ module Rinline
     end
 
     attr_accessor :debug, :iseq_threshold
+    attr_reader :file_cache
 
     def initialize
       @debug = false
       @iseq_threshold = 50
+      @file_cache = {}
     end
 
     def optimize_instance_method(klass, method_name)
