@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Masataka Pocke Kuwabara"]
   spec.email         = ["kuwabara@pocke.me"]
 
-  spec.summary       = %q{}
-  spec.description   = %q{}
+  spec.summary       = %q{Inline expansion for Ruby}
+  spec.description   = %q{Inline expansion for Ruby}
   spec.homepage      = "https://github.com/pocke/rinline"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
