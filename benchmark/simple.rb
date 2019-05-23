@@ -1,7 +1,8 @@
 # $ ruby benchmark/simple.rb
 #                            user     system      total        real
-# plain                  6.203292   0.000000   6.203292 (  6.206694)
-# optimized              3.623372   0.000000   3.623372 (  3.625261)
+# plain                  5.716059   0.000000   5.716059 (  5.719808)
+# optimized              3.791726   0.000000   3.791726 (  3.793648)
+# hand_optimized         3.660404   0.000000   3.660404 (  3.662295)
 
 require 'benchmark'
 
@@ -12,6 +13,10 @@ class C
 
   def optimized
     m + n
+  end
+
+  def hand_optimized
+    1 + 2
   end
 
   def m
@@ -33,4 +38,5 @@ i = C.new
 Benchmark.bm(20) do |x|
   x.report('plain')     { 100000000.times { i.plain } }
   x.report('optimized') { 100000000.times { i.optimized } }
+  x.report('hand_optimized') { 100000000.times { i.hand_optimized } }
 end
