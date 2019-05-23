@@ -1,0 +1,14 @@
+language: ruby
+
+rvm:
+  - 2.6.3
+  - ruby-head
+
+cache: bundler
+
+
+before_install:
+  - gem install bundler
+
+script:
+  - bundle exec rake
