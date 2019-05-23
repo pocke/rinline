@@ -6,5 +6,9 @@ rvm:
 
 cache: bundler
 
+
+before_install:
+  - gem install bundler
+
 script:
   - bundle exec rake
